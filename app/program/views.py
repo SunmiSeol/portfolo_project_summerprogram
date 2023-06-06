@@ -16,51 +16,51 @@ from rest_framework.decorators import api_view
 
 
 def index(request):
-    print("------------------------- I AM HERE")
+    print("------------------------- Summer Programs for Kids in NYC")
     queryset = Program.objects.all()
-    return render(request, "tutorials/index.html", {'tutorials': queryset})
+    return render(request, "programs/index.html", {'programs': queryset})
 
 
 class index(APIView):
     renderer_classes = [TemplateHTMLRenderer]
-    template_name = 'tutorials/index.html'
+    template_name = 'programs/index.html'
 
     def get(self, request):
         queryset = Program.objects.all()
-        return Response({'tutorials': queryset})
+        return Response({'programs': queryset})
 
 
 class list_all_programs(APIView):
     renderer_classes = [TemplateHTMLRenderer]
-    template_name = 'tutorials/tutorial_list.html'
+    template_name = 'programs/program_list.html'
 
     def get(self, request):
         queryset = Program.objects.all()
-        return Response({'tutorials': queryset})
+        return Response({'programs': queryset})
 
 
-# Create your views here.
+
 @api_view(['GET', 'POST', 'DELETE'])
 def program_list(request):
     if request.method == 'GET':
-        tutorials = Program.objects.all()
+        summerprograms = Program.objects.all()
 
         title = request.GET.get('title', None)
         if title is not None:
-            tutorials = tutorials.filter(title__icontains=title)
+            summerprograms = summerprograms.filter(title__icontains=title)
 
-        tutorials_serializer = ProgramSerializer(tutorials, many=True)
-        return JsonResponse(tutorials_serializer.data, safe=False)
+        programs_serializer = ProgramSerializer(summerprograms, many=True)
+        return JsonResponse(programs_serializer.data, safe=False)
         # 'safe=False' for objects serialization
 
     elif request.method == 'POST':
-        tutorial_data = JSONParser().parse(request)
-        tutorial_serializer = ProgramSerializer(data=tutorial_data)
-        if tutorial_serializer.is_valid():
-            tutorial_serializer.save()
-            return JsonResponse(tutorial_serializer.data,
+        programs_data = JSONParser().parse(request)
+        programs_serializer = ProgramSerializer(data=programs_data)
+        if programs_serializer.is_valid():
+            programs_serializer.save()
+            return JsonResponse(programs_serializer.data,
                                 status=status.HTTP_201_CREATED)
-        return JsonResponse(tutorial_serializer.errors,
+        return JsonResponse(programs_serializer.errors,
                             status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
@@ -76,34 +76,34 @@ def program_list(request):
 @api_view(['GET', 'PUT', 'DELETE'])
 def program_detail(request, pk):
     try:
-        tutorial = Program.objects.get(pk=pk)
+        summerprograms = Program.objects.get(pk=pk)
     except Program.DoesNotExist:
         return JsonResponse({'message': 'The program does not exist'},
                             status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
-        tutorial_serializer = ProgramSerializer(tutorial)
-        return JsonResponse(tutorial_serializer.data)
+        programs_serializer = ProgramSerializer(summerprograms)
+        return JsonResponse(programs_serializer.data)
 
     elif request.method == 'PUT':
-        tutorial_data = JSONParser().parse(request)
-        tutorial_serializer = ProgramSerializer(tutorial, data=tutorial_data)
-        if tutorial_serializer.is_valid():
-            tutorial_serializer.save()
-            return JsonResponse(tutorial_serializer.data)
-        return JsonResponse(tutorial_serializer.errors,
+        program_data = JSONParser().parse(request)
+        programs_serializer = ProgramSerializer(summerprograms, data=program_data)
+        if programs_serializer.is_valid():
+            programs_serializer.save()
+            return JsonResponse(programs_serializer.data)
+        return JsonResponse(programs_serializer.errors,
                             status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
-        tutorial.delete()
+        summerprograms.delete()
         return JsonResponse({'message': 'Program was deleted successfully!'},
                             status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(['GET'])
 def registration_open_list(request):
-    tutorials = Program.objects.filter(registration_open=True)
+    summerprograms = Program.objects.filter(registration_open=True)
 
     if request.method == 'GET':
-        tutorials_serializer = ProgramSerializer(tutorials, many=True)
-        return JsonResponse(tutorials_serializer.data, safe=False)
+        programs_serializer = ProgramSerializer(summerprograms, many=True)
+        return JsonResponse(programs_serializer.data, safe=False)
