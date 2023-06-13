@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: portfoliobyazure
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: portfoliobyazure
+  template:
+    metadata:
+      labels:
+        app: portfoliobyazure
+    spec:
+      containers:
+        - args:
+            - python
+            - manage.py
+            - runserver
+            - 0.0.0.0:8000
+          name: portfoliobyazure
+          image: ssdjangoregistry.azurecr.io/portfoliobyazure:v1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DATABASE_HOST
+              value: "ssportfolio-server.postgres.database.azure.com"
+            - name: DATABASE_USER
+              value: "ardentavocet8"
+            - name: DATABASE_PASSWORD
+              value: "uQQaV_qxocupW8EH4rX6rg"
+            - name: DATABASE_NAME
+              value: "program-db"
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                      - portfoliobyazure
+              topologyKey: "kubernetes.io/hostname"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: portfoliobyazure-service
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8000
+  selector:
+    app: portfoliobyazure
